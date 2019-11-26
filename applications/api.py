@@ -1,63 +1,36 @@
-from django.http import Http404
+from random import random
 from applications.models import Application
-from applications.serializers import ApplicationSerializer, ApplicationKeySerializer
-from rest_framework import status
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from applications.serializers import ApplicationSerializer
+from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework import permissions
 from applications.permissions import IsOwnerOrReadOnly
 
 
-class ApplicationListAPI(APIView):
-    ''' List application '''
+class ApplicationListAPI(ListAPIView):
+    ''' List applications '''
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-    def get(self, request, format=None):
-        app = Application.objects.all()
-        serializer = ApplicationSerializer(app, many=True)
-        return Response(serializer.data)
+    queryset = Application.objects.all()
+    serializer_class = ApplicationSerializer
 
 
-class ApplicationAPI(APIView):
+class ApplicationAPI(RetrieveUpdateDestroyAPIView):
     ''' Update and delete application '''
-
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-
-    def get_object(self, key):
-        try:
-            return Application.objects.get(key=key)
-        except Application.DoesNotExist:
-            raise Http404
-    
-    def get(self, request, key, format=None):
-        app = self.get_object(key)
-        serializer = ApplicationSerializer(app)
-        return Response(serializer.data)
-
-    def put(self, request, key, format=None):
-        app = self.get_object(key)
-        serializer = ApplicationSerializer(app, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    def delete(self, request, key, format=None):
-        app = self.get_object(key)
-        app.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    queryset = Application.objects.all()
+    serializer_class = ApplicationSerializer
+    lookup_field = 'key'
 
 
-class ApplicationKeyAPI(APIView):
-    ''' Create application with key '''
+class ApplicationKeyAPI(CreateAPIView):
+    ''' Create application with random key '''
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    queryset = Application.objects.all()
+    serializer_class = ApplicationSerializer  
 
-    def post(self, request, format=None):
-        serializer = ApplicationKeySerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user, key=42)
+        key = round(random() * 100000)
+        owner = self.request.user
+        return serializer.save(owner=owner, key=key)
+
+    
+
