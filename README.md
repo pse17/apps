@@ -13,11 +13,11 @@ curl -u admin:admin -d "name=App1" 127.0.0.1:/api/add
 где admin:admin имя пользователя и пароль,  
 запрос вернет например {name: "Название приложения", apikey:12345}   
 apikey - ключ чтобы для доступа к записи о приложении. Например так  
-curl -u admin:admin localhost:/api/12345  
+curl -u admin:admin 127.0.0.1:/api/12345  
 Для редактирования названия приложения  
-curl -u admin:admin -X PUT -H 'Content-Type: application/json' -d '{"name": "Новое название"}' localhost//api/12345  
+curl -u admin:admin -X PUT -H 'Content-Type: application/json' -d '{"name": "Новое название"}' 127.0.0.1:/api/12345  
 Для удаления  
-curl -u admin:admin -X DELETE localhost//api/12345  
+curl -u admin:admin -X DELETE 127.0.0.1:/api/12345  
 Для вывода списка приложений  
-curl -u admin:admin localhost:/api/list
+curl -u admin:admin 127.0.0.1:/api/list
 
