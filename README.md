@@ -3,7 +3,7 @@
 git clone https://github.com/pse17/apps.git  
 cd apps  
 pip3 install -r requirements.txt  
-uwsgi --http :80 --module applications.wsgi  
+uwsgi --http :80 --module apps.wsgi  
 
 Для запуска тестов наберите  
 python manage.py test
